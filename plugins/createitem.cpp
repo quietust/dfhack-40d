@@ -67,6 +67,28 @@ DFhackCExport command_result plugin_shutdown ( color_ostream &out )
     return CR_OK;
 }
 
+short findCreature (string name)
+{
+    for (size_t i = 0; i < world->raws.creatures.size(); i++)
+    {
+        df::creature_raw *creature = world->raws.creatures[i];
+        if (creature->creature_id == name)
+            return i;
+    }
+    return -1;
+}
+
+short findPlant (string name)
+{
+    for (size_t i = 0; i < world->raws.matgloss.plant.size(); i++)
+    {
+        df::matgloss_plant *plant = world->raws.matgloss.plant[i];
+        if (plant->id == name)
+            return i;
+    }
+    return -1;
+}
+
 bool makeItem (df::reaction_product_itemst *prod, df::unit *unit, bool second_item = false)
 {
     stl::vector<df::item *> out_items;
@@ -223,6 +245,10 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
     item_str = parameters[0];
     material_str = parameters[1];
 
+    std::vector<std::string> material_tokens;
+    split_string(&material_tokens, material_str, ":");
+
+
     if (parameters.size() == 3)
     {
         stringstream ss(parameters[2]);
@@ -286,15 +312,7 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
     case item_type::BONES:
     case item_type::SHELL:
     case item_type::SKULL:
-        for (size_t i = 0; i < world->raws.creatures.size(); i++)
-        {
-            df::creature_raw *creature = world->raws.creatures[i];
-            if (creature->creature_id == material_str)
-            {
-                material = (df::material_type)i;
-                break;
-            } 
-        }
+        material = (df::material_type)findCreature(material_str);
         if (material == -1)
         {
             out.printerr("Unrecognized creature ID!\n");
@@ -305,15 +323,7 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
     case item_type::SEEDS:
     case item_type::PLANT:
     case item_type::LEAVES:
-        for (size_t i = 0; i < world->raws.matgloss.plant.size(); i++)
-        {
-            df::matgloss_plant *plant = world->raws.matgloss.plant[i];
-            if (plant->id == material_str)
-            {
-                material = (df::material_type)i;
-                break;
-            }
-        }
+        material = (df::material_type)findPlant(material_tokens[1]);
         if (material == -1)
         {
             out.printerr("Unrecognized plant ID!\n");
@@ -323,8 +333,36 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
 
     case item_type::EXTRACT:
     case item_type::CHEESE:
-        // TODO: Accept CREATURE:whatever or PLANT:whatever
-        out.printerr("Cannot create that type of item yet!\n");
+        if (material_tokens.size() != 2)
+        {
+            out.printerr("You must indicate whether you are specifying a CREATURE or a PLANT!\n");
+            return CR_FAILURE;
+        }
+        else if (material_tokens[0] == "CREATURE")
+        {
+            material = material_type::LEATHER;
+            matgloss = findCreature(material_tokens[1]);
+            if (matgloss == -1)
+            {
+                out.printerr("Unrecognized creature ID!\n");
+                return CR_FAILURE;
+            }
+        }
+        else if (material_tokens[0] == "PLANT")
+        {
+            material = material_type::PLANT;
+            matgloss = findPlant(material_tokens[1]);
+            if (matgloss == -1)
+            {
+                out.printerr("Unrecognized plant ID!\n");
+                return CR_FAILURE;
+            }
+        }
+        else
+        {
+            out.printerr("Invalid matgloss specifier - must be CREATURE or PLANT!\n");
+            return CR_FAILURE;
+        }
         break;
 
     case item_type::CORPSE:
