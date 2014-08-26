@@ -21,6 +21,7 @@
 #include "df/world_site.h"
 #include "df/item.h"
 #include "df/creature_raw.h"
+#include "df/matgloss_plant.h"
 #include "df/reaction_reagent.h"
 #include "df/reaction_product_itemst.h"
 
@@ -276,10 +277,15 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
         break;
 
     case item_type::REMAINS:
+    case item_type::MEAT:
     case item_type::FISH:
     case item_type::FISH_RAW:
     case item_type::VERMIN:
     case item_type::PET:
+    case item_type::SKIN_RAW:
+    case item_type::BONES:
+    case item_type::SHELL:
+    case item_type::SKULL:
         for (size_t i = 0; i < world->raws.creatures.size(); i++)
         {
             df::creature_raw *creature = world->raws.creatures[i];
@@ -294,6 +300,31 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
             out.printerr("Unrecognized creature ID!\n");
             return CR_FAILURE;
         }
+        break;
+
+    case item_type::SEEDS:
+    case item_type::PLANT:
+    case item_type::LEAVES:
+        for (size_t i = 0; i < world->raws.matgloss.plant.size(); i++)
+        {
+            df::matgloss_plant *plant = world->raws.matgloss.plant[i];
+            if (plant->id == material_str)
+            {
+                material = (df::material_type)i;
+                break;
+            }
+        }
+        if (material == -1)
+        {
+            out.printerr("Unrecognized plant ID!\n");
+            return CR_FAILURE;
+        }
+        break;
+
+    case item_type::EXTRACT:
+    case item_type::CHEESE:
+        // TODO: Accept CREATURE:whatever or PLANT:whatever
+        out.printerr("Cannot create that type of item yet!\n");
         break;
 
     case item_type::CORPSE:
