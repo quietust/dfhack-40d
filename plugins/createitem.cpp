@@ -298,6 +298,16 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
             out.printerr("Unrecognized material!\n");
             return CR_FAILURE;
         }
+        if ((item.type == df::item_type::SKIN_TANNED) && (matinfo.type != df::material_type::LEATHER))
+        {
+            out.printerr("SKIN_TANNED items must be made of LEATHER!\n");
+            return CR_FAILURE;
+        }
+        if ((item.type == df::item_type::WOOD) && (matinfo.type != df::material_type::WOOD))
+        {
+            out.printerr("WOOD items must be made of WOOD!\n");
+            return CR_FAILURE;
+        }
         material = matinfo.type;
         matgloss = matinfo.subtype;
         break;
@@ -367,6 +377,7 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
 
     case item_type::CORPSE:
     case item_type::CORPSEPIECE:
+    case item_type::POTION:
     case item_type::FOOD:
         out.printerr("Cannot create that type of item!\n");
         return CR_FAILURE;
