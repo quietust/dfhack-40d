@@ -333,7 +333,7 @@ command_result df_createitem (color_ostream &out, vector <string> & parameters)
     case item_type::SEEDS:
     case item_type::PLANT:
     case item_type::LEAVES:
-        material = (df::material_type)findPlant(material_tokens[1]);
+        material = (df::material_type)findPlant(material_str);
         if (material == -1)
         {
             out.printerr("Unrecognized plant ID!\n");
