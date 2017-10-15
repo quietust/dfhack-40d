@@ -162,19 +162,6 @@ command_result df_showmood (color_ostream &out, vector <string> & parameters)
             out.print("not yet claimed a workshop but will want");
         out.print(" the following items:\n");
 
-        // total amount of stuff fetched so far
-        int count_got = 0;
-        for (size_t i = 0; i < job->items.size(); i++)
-        {
-/*
-            df::item_type type = job->job_items[i]->item_type;
-            if (type == item_type::BAR || type == item_type::CLOTH)
-                count_got += job->items[i]->item->getTotalDimension();
-            else
-*/
-                count_got += 1;
-        }
-
         for (size_t i = 0; i < unit->job.mood_item_type.size(); i++)
         {
             df::item_type item_type = unit->job.mood_item_type[i];
@@ -185,6 +172,8 @@ command_result df_showmood (color_ostream &out, vector <string> & parameters)
             out.print("Item %i: ", i + 1);
             MaterialInfo matinfo(material, matgloss);
             string mat_name = matinfo.toString();
+            if (material == -1)
+                mat_name = "any";
 
             switch (item_type)
             {
@@ -251,12 +240,7 @@ command_result df_showmood (color_ostream &out, vector <string> & parameters)
                 }
             }
 
-            // total amount of stuff fetched for this requirement
-            // XXX may fail with cloth/thread/bars if need 1 and fetch 2
-            if (count_got)
-                out.print(" (collected)");
             out.print("\n");
-            count_got--;
         }
     }
     if (!found)
