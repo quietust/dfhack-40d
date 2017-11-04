@@ -394,7 +394,7 @@ viewscreen_unitlaborsst::viewscreen_unitlaborsst(stl::vector<df::unit*> &src, in
         if (unit->flags1.bits.dead)
             cur->allowEdit = false;
 
-        if (!ENUM_ATTR(profession, can_assign_labor, unit->profession))
+        if (!ENUM_ATTR(profession, can_assign_labor, unit->profession) && (unit->profession != profession::CHAMPION))
             cur->allowEdit = false;
 
         cur->color = Units::getProfessionColor(unit);
