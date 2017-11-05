@@ -93,6 +93,7 @@ command_result df_cleanowned (color_ostream &out, vector <string> & parameters)
     for (std::size_t i=0; i < world->items.all.size(); i++)
     {
         df::item * item = world->items.all[i];
+        df::item * container = Items::getContainer(item);
         bool confiscate = false;
         bool dump = false;
 
@@ -109,7 +110,24 @@ command_result df_cleanowned (color_ostream &out, vector <string> & parameters)
             }
         }
 
-        if (item->flags.bits.rotten)
+        if (item->flags.bits.in_job)
+        {
+            // Ignore items tasked by jobs (food claimed for eating)
+            confiscate = false;
+            dump = false;
+        }
+        else if (container && container->getType() == df::item_type::BACKPACK)
+        {
+            // Ignore items stored in backpacks (i.e. rations)
+            confiscate = false;
+            dump = false;
+        }
+        else if (confiscate_all)
+        {
+            out.print("Confiscating: \t");
+            confiscate = true;
+        }
+        else if (item->flags.bits.rotten)
         {
             out.print("Confiscating a rotten item: \t");
             confiscate = true;
@@ -149,11 +167,6 @@ command_result df_cleanowned (color_ostream &out, vector <string> & parameters)
             out.print("Confiscating and dumping a worn item: \t");
             confiscate = true;
             dump = true;
-        }
-        else if (confiscate_all)
-        {
-            out.print("Confiscating: \t");
-            confiscate = true;
         }
 
         if (confiscate)
