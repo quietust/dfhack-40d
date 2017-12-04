@@ -1,19 +1,23 @@
 OPTION(DL_RUBY "download libruby from the internet" ON)
 IF (DL_RUBY AND NOT APPLE)
     IF (UNIX)
-        FILE(DOWNLOAD http://cloud.github.com/downloads/jjyg/dfhack/libruby187.tar.gz ${CMAKE_CURRENT_BINARY_DIR}/libruby187.tar.gz
-            EXPECTED_MD5 eb2adea59911f68e6066966c1352f291)
-        EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E tar xzf libruby187.tar.gz
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-        FILE(RENAME ${CMAKE_CURRENT_BINARY_DIR}/libruby1.8.so.1.8.7 ${CMAKE_CURRENT_BINARY_DIR}/libruby.so)
-        SET(RUBYLIB ${CMAKE_CURRENT_BINARY_DIR}/libruby.so)
+        SET(RUBYLIB ${CMAKE_CURRENT_SOURCE_DIR}/linux${DFHACK_BUILD_ARCH}/libruby.so)
+        SET(RUBYLIB_INSTALL_NAME "libruby.so")
+        DOWNLOAD_FILE_UNZIP("https://github.com/DFHack/dfhack-bin/releases/download/0.43.05/linux32-libruby187.so.gz"
+            "gz"
+            ${RUBYLIB}.gz
+            "2d06f5069ff07ea934ecd40db55a4ac5"
+            ${RUBYLIB}
+            "b00d8d7086cb39f6fde793f9d89cb2d7")
     ELSE (UNIX)
-        FILE(DOWNLOAD http://cloud.github.com/downloads/jjyg/dfhack/msvcrtruby187.tar.gz ${CMAKE_CURRENT_BINARY_DIR}/msvcrtruby187.tar.gz
-            EXPECTED_MD5 9f4a1659ac3a5308f32d3a1937bbeeae)
-        EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E tar xzf msvcrtruby187.tar.gz
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-        FILE(RENAME ${CMAKE_CURRENT_BINARY_DIR}/msvcrt-ruby18.dll ${CMAKE_CURRENT_BINARY_DIR}/libruby.dll)
-        SET(RUBYLIB ${CMAKE_CURRENT_BINARY_DIR}/libruby.dll)
+        SET(RUBYLIB ${CMAKE_CURRENT_SOURCE_DIR}/win${DFHACK_BUILD_ARCH}/libruby.dll)
+        SET(RUBYLIB_INSTALL_NAME "libruby.dll")
+        DOWNLOAD_FILE_UNZIP("https://github.com/DFHack/dfhack-bin/releases/download/0.43.05/win32-libruby187.dll.gz"
+            "gz"
+            ${RUBYLIB}.gz
+            "ffc0f1b5b33748e2a36128e90c97f6b2"
+            ${RUBYLIB}
+            "482c1c418f4ee1a5f04203eee1cda0ef")
     ENDIF(UNIX)
 ENDIF(DL_RUBY AND NOT APPLE)
 

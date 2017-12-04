@@ -129,6 +129,8 @@ add_definitions(-DDFHACK_40d)
 
 #### expose depends ####
 
+include(CMake/DownloadFile.cmake)
+
 # find and make available libz
 if(NOT UNIX)
     SET(ZLIB_ROOT depends/zlib/)
