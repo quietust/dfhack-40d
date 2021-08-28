@@ -1129,8 +1129,8 @@ bool Gui::setDesignationCoords (const int32_t x, const int32_t y, const int32_t 
 bool Gui::getMousePos (int32_t & x, int32_t & y)
 {
     if (enabler && init) {
-        x = enabler->mouse_x / (enabler->window_x / init->display.grid_x);
-        y = enabler->mouse_y / (enabler->window_y / init->display.grid_y);
+        x = enabler->mouse_x / (enabler->window_width / init->display.grid_x);
+        y = enabler->mouse_y / (enabler->window_height / init->display.grid_y);
     }
     else {
         x = -1;

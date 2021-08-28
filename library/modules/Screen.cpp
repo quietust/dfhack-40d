@@ -74,8 +74,8 @@ df::coord2d Screen::getMousePos()
     if (!init || (enabler && !enabler->tracking_on))
         return df::coord2d(-1, -1);
 
-    return df::coord2d(enabler->mouse_x / (enabler->window_x / init->display.grid_x),
-                       enabler->mouse_y / (enabler->window_y / init->display.grid_y));
+    return df::coord2d(enabler->mouse_x / (enabler->window_width / init->display.grid_x),
+                       enabler->mouse_y / (enabler->window_height / init->display.grid_y));
 }
 bool Screen::isKeyPressed(df::interface_key key)
 {

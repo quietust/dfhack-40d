@@ -24,6 +24,24 @@ function check_block_items(fix)
         local last_id = nil
         local resort = false
 
+        -- Remove references to nonexistent items
+        for i = #block.items-1, 0, -1 do
+            local item = df.item.find(block.items[i])
+            if not item then
+                block.items:erase(i)
+            end
+        end
+
+        -- Remove references to items that aren't actually in the block
+        for i = #block.items-1, 0, -1 do
+            local item = df.item.find(block.items[i])
+            local ix,iy,iz = pos2xyz(item.pos)
+            local dx,dy,dz = ix-bx,iy-by,iz-bz
+            if item.flags.on_ground and (dx < 0 or dx >= 16 or dy < 0 or dy >= 16 or dz ~= 0) then
+                block.items:erase(i)
+            end
+        end
+
         for _,id in ipairs(block.items) do
             local item = df.item.find(id)
             local ix,iy,iz = pos2xyz(item.pos)
