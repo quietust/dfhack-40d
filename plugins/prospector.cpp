@@ -249,8 +249,8 @@ struct EmbarkTileLayout {
 
 static df::world_region_details *get_details(df::world_data *data, df::coord2d pos)
 {
-    int d_idx = linear_index(data->region_details, &df::world_region_details::pos, pos);
-    return vector_get(data->region_details, d_idx);
+    int d_idx = linear_index(data->terrain.region_details, &df::world_region_details::pos, pos);
+    return vector_get(data->terrain.region_details, d_idx);
 }
 
 bool estimate_underground(color_ostream &out, EmbarkTileLayout &tile, df::world_region_details *details, int x, int y)
@@ -652,7 +652,7 @@ command_result prospector (color_ostream &con, vector <string> & parameters)
                             loc = loc % 16;
                             if (showHidden || !b->DesignationAt(loc).bits.hidden)
                             {
-                                if(plant.flags.bits.is_shrub)
+                                if(plant.type >= df::plant_type::shrub_dry)
                                     plantMats[plant.plant_id].add(global_z);
                                 else
                                     treeMats[plant.wood_id].add(global_z);

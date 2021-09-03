@@ -84,10 +84,10 @@ static command_result immolations (color_ostream &out, do_what what, bool shrubs
         for(size_t i = 0 ; i < world->plants.all.size(); i++)
         {
             df::plant *p = world->plants.all[i];
-            if(shrubs && p->flags.bits.is_shrub || trees && !p->flags.bits.is_shrub)
+            if(shrubs && (p->type >= df::plant_type::shrub_dry) || trees && (p->type <= df::plant_type::tree_wet))
             {
                 if (what == do_immolate)
-                    p->damage_flags.bits.is_burning = true;
+                    p->flags.bits.is_burning = true;
                 p->hitpoints = 0;
                 destroyed ++;
             }
@@ -110,7 +110,7 @@ static command_result immolations (color_ostream &out, do_what what, bool shrubs
                     if(tree->pos.x == x && tree->pos.y == y && tree->pos.z == z)
                     {
                         if(what == do_immolate)
-                            tree->damage_flags.bits.is_burning = true;
+                            tree->flags.bits.is_burning = true;
                         tree->hitpoints = 0;
                         didit = true;
                         break;
@@ -210,7 +210,7 @@ command_result df_grow (color_ostream &out, vector <string> & parameters)
         {
             df::plant *p = world->plants.all[i];
             df::tiletype ttype = map.tiletypeAt(df::coord(p->pos.x,p->pos.y,p->pos.z));
-            if(!p->flags.bits.is_shrub && tileShape(ttype) == tiletype_shape::SAPLING && tileSpecial(ttype) != tiletype_special::DEAD)
+            if((p->type <= df::plant_type::tree_wet) && tileShape(ttype) == tiletype_shape::SAPLING && tileSpecial(ttype) != tiletype_special::DEAD)
             {
                 p->grow_counter = sapling_to_tree_threshold;
             }
@@ -303,16 +303,19 @@ command_result df_createplant (color_ostream &out, vector <string> & parameters)
         // for now, always set "watery" for WET-permitted plants, even if they're spawned away from water
         // the proper method would be to actually look for nearby water features, but it's not clear exactly how that works
         if (wood_raw->flags.is_set(matgloss_wood_flags::WET))
-            plant->flags.bits.watery = 1;
+            plant->type = df::plant_type::tree_wet;
+        else
+            plant->type = df::plant_type::tree_dry;
         plant->wood_id = wood_id;
     }
     else
     {
         plant->hitpoints = 100000;
-        plant->flags.bits.is_shrub = 1;
         // see above
         if (plant_raw->flags.is_set(matgloss_plant_flags::WET))
-            plant->flags.bits.watery = 1;
+            plant->type = df::plant_type::shrub_wet;
+        else
+            plant->type = df::plant_type::shrub_dry;
         plant->plant_id = plant_id;
     }
     plant->pos.x = x;
@@ -325,15 +328,15 @@ command_result df_createplant (color_ostream &out, vector <string> & parameters)
     plant->max_safe_temp = 60001;
 
     world->plants.all.push_back(plant);
-    switch (plant->flags.whole & 3)
+    switch (plant->type)
     {
-    case 0: world->plants.tree_dry.push_back(plant); break;
-    case 1: world->plants.tree_wet.push_back(plant); break;
-    case 2: world->plants.shrub_dry.push_back(plant); break;
-    case 3: world->plants.shrub_wet.push_back(plant); break;
+    case df::plant_type::tree_dry: world->plants.tree_dry.push_back(plant); break;
+    case df::plant_type::tree_wet: world->plants.tree_wet.push_back(plant); break;
+    case df::plant_type::shrub_dry: world->plants.shrub_dry.push_back(plant); break;
+    case df::plant_type::shrub_wet: world->plants.shrub_wet.push_back(plant); break;
     }
     map->plants.push_back(plant);
-    if (plant->flags.bits.is_shrub)
+    if (plant->type >= df::plant_type::shrub_dry)
         map->tiletype[tx][ty] = tiletype::Shrub;
     else
         map->tiletype[tx][ty] = tiletype::Sapling;

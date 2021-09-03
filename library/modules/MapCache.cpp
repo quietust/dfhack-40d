@@ -794,7 +794,7 @@ t_matpair MapExtras::BlockInfo::getBaseMaterial(df::tiletype tt, df::coord2d pos
     case PLANT:
         if (auto plant = plants[block->map_pos + df::coord(x,y,0)])
         {
-            if (plant->flags.bits.is_shrub)
+            if (plant->type >= plant_type::shrub_dry)
                 rv.mat_type = material_type::PLANT;
             else
                 rv.mat_type = material_type::WOOD;
@@ -1029,9 +1029,9 @@ MapExtras::MapCache::MapCache()
 
     if (auto data = &df::global::world->world_data)
     {
-        for (size_t i = 0; i < data->region_details.size(); i++)
+        for (size_t i = 0; i < data->terrain.region_details.size(); i++)
         {
-            auto info = data->region_details[i];
+            auto info = data->terrain.region_details[i];
             region_details[info->pos] = info;
         }
     }
