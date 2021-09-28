@@ -25,15 +25,15 @@ using namespace df::enums;
 
 bool isItemAvailInStocks (df::item *item)
 {
-	bool rv;
-	__asm
-	{
-		mov eax, item
-		mov ecx, 0x6fc0e0
-		call ecx
-		mov rv, al
-	}
-	return rv;
+    bool rv;
+    __asm
+    {
+        mov eax, item
+        mov ecx, 0x6fc0e0
+        call ecx
+        mov rv, al
+    }
+    return rv;
 }
 
 #define compare_sort(v1, v2) { auto a1 = (v1); auto a2 = (v2); if (a1 != a2) return a1 - a2; }
@@ -90,17 +90,25 @@ DFhackCExport command_result plugin_enable(color_ostream &out, bool enable)
 
         is_enabled = enable;
         MemoryPatcher patcher;
-	uint8_t *ptr = (uint8_t *)0x645f73;
-        patcher.verifyAccess(ptr, 1, true);
+        uint8_t *ptr = (uint8_t *)0x645f5c;
+        patcher.verifyAccess(ptr, 2, true);
         if (is_enabled)
         {
-            if (*ptr == 0x75) *ptr = 0xEB;
+            if (ptr[0] == 0x33 && ptr[1] == 0xFF)
+            {
+                ptr[0] = 0xEB;
+                ptr[1] = 0x74;
+            }
         }
         else
         {
-            if (*ptr == 0xEB) *ptr = 0x75;
+            if (ptr[0] == 0xEB && ptr[1] == 0x74)
+            {
+                ptr[0] = 0x33;
+                ptr[1] = 0xFF;
+            }
         }
-        patcher.verifyAccess(ptr, 1, false);
+        patcher.verifyAccess(ptr, 2, false);
     }
 
     return CR_OK;
