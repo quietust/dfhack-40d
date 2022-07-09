@@ -141,113 +141,40 @@ void selectWord (const df::language_word_table &table, int32_t &word, df::enum_f
     }
 }
 
-void generateName(df::language_name &output, int language, int mode, const df::language_word_table &table1, const df::language_word_table &table2)
+void generateName(df::language_name &output, int language, const df::language_word_table &table1, const df::language_word_table &table2)
 {
     for (int i = 0; i < 100; i++)
     {
-        if (mode != 8 && mode != 9)
-        {
-            output = df::language_name();
-            if (language == -1)
-                language = rng.df_trandom(world->raws.language.translations.size());
-            output.unknown = mode;
-            output.language = language;
-        }
+        output = df::language_name();
+        if (language == -1)
+            language = rng.df_trandom(world->raws.language.translations.size());
+        output.type = df::language_name_type::Artifact; // no need to support the other name types
+        output.language = language;
         output.has_name = 1;
         if (output.language == -1)
             output.language = rng.df_trandom(world->raws.language.translations.size());
         int r, r2, r3;
-        switch (mode)
+        r = rng.df_trandom(3);
+        if (r == 0 || r == 1)
         {
-        case 0: case 9: case 10:
-            if (mode != 9)
+            if (rng.df_trandom(2))
             {
-                int32_t word; df::enum_field<df::part_of_speech,int16_t> part;
-                output.first_name.clear();
-                selectWord(table1, word, part, 2);
-                if (word >= 0 && word < world->raws.language.words.size())
-                    output.first_name = *world->raws.language.translations[language]->words[word];
+                selectWord(table2, output.words[0], output.parts_of_speech[0], 0);
+                selectWord(table1, output.words[1], output.parts_of_speech[1], 1);
             }
-            if (mode != 10)
+            else
             {
-        case 4: case 37: // this is not a typo
-                if (rng.df_trandom(2))
-                {
-                    selectWord(table2, output.words[0], output.parts_of_speech[0], 0);
-                    selectWord(table1, output.words[1], output.parts_of_speech[1], 1);
-                }
-                else
-                {
-                    selectWord(table1, output.words[0], output.parts_of_speech[0], 0);
-                    selectWord(table2, output.words[1], output.parts_of_speech[1], 1);
-                }
+                selectWord(table1, output.words[0], output.parts_of_speech[0], 0);
+                selectWord(table2, output.words[1], output.parts_of_speech[1], 1);
             }
-            break;
-
-        case 1: case 13: case 20:
-            r = rng.df_trandom(3);
-            if (r == 0 || r == 1)
-            {
-                if (rng.df_trandom(2))
-                {
-                    selectWord(table2, output.words[0], output.parts_of_speech[0], 0);
-                    selectWord(table1, output.words[1], output.parts_of_speech[1], 1);
-                }
-                else
-                {
-                    selectWord(table1, output.words[0], output.parts_of_speech[0], 0);
-                    selectWord(table2, output.words[1], output.parts_of_speech[1], 1);
-                }
-            }
-            if (r == 1 || r == 2)
-            {
-        case 3: case 8: case 11: // this is not a typo either
-                r2 = rng.df_trandom(2);
-                if (r2)
-                    selectWord(table1, output.words[5], output.parts_of_speech[5], 2);
-                else
-                    selectWord(table2, output.words[5], output.parts_of_speech[5], 2);
-                r3 = rng.df_trandom(3);
-                if (rng.df_trandom(50))
-                    r3 = rng.df_trandom(2);
-                switch (r3)
-                {
-                case 0:
-                case 2:
-                    if (r3 == 2)
-                        r2 = rng.df_trandom(2);
-                    if (r2)
-                        selectWord(table2, output.words[6], output.parts_of_speech[6], 5);
-                    else
-                        selectWord(table1, output.words[6], output.parts_of_speech[6], 5);
-                    if (r3 == 0)
-                        break;
-                    r2 = -r2;
-                case 1:
-                    if (r2)
-                        selectWord(table1, output.words[2], output.parts_of_speech[2], 3);
-                    else
-                        selectWord(table2, output.words[2], output.parts_of_speech[2], 3);
-                    if (!(rng.df_trandom(100)))
-                        selectWord(table1, output.words[3], output.parts_of_speech[3], 3);
-                    break;
-                }
-            }
-            if (rng.df_trandom(100))
-            {
-                if (rng.df_trandom(2))
-                    selectWord(table1, output.words[4], output.parts_of_speech[4], 4);
-                else
-                    selectWord(table2, output.words[4], output.parts_of_speech[4], 4);
-            }
-            if ((mode == 3) && (output.parts_of_speech[5] == part_of_speech::Noun) && (output.words[5] != -1) && (world->raws.language.words[output.words[5]]->forms[1].length()))
-                output.parts_of_speech[5] = part_of_speech::NounPlural;
-            break;
-
-        case 2: case 5: case 6: case 12: case 14: case 15: case 16: case 17: case 18: case 19:
-        case 21: case 22: case 23: case 24: case 25: case 26: case 27: case 28: case 29: case 30:
-        case 31: case 32: case 33: case 34: case 35: case 36: case 38: case 39:
-            selectWord(table1, output.words[5], output.parts_of_speech[5], 2);
+        }
+        if (r == 1 || r == 2)
+        {
+            r2 = rng.df_trandom(2);
+            if (r2)
+                selectWord(table1, output.words[5], output.parts_of_speech[5], 2);
+            else
+                selectWord(table2, output.words[5], output.parts_of_speech[5], 2);
             r3 = rng.df_trandom(3);
             if (rng.df_trandom(50))
                 r3 = rng.df_trandom(2);
@@ -255,53 +182,31 @@ void generateName(df::language_name &output, int language, int mode, const df::l
             {
             case 0:
             case 2:
-                selectWord(table2, output.words[6], output.parts_of_speech[6], 5);
+                if (r3 == 2)
+                    r2 = rng.df_trandom(2);
+                if (r2)
+                    selectWord(table2, output.words[6], output.parts_of_speech[6], 5);
+                else
+                    selectWord(table1, output.words[6], output.parts_of_speech[6], 5);
                 if (r3 == 0)
                     break;
+                r2 = -r2;
             case 1:
-                selectWord(table2, output.words[2], output.parts_of_speech[2], 3);
+                if (r2)
+                    selectWord(table1, output.words[2], output.parts_of_speech[2], 3);
+                else
+                    selectWord(table2, output.words[2], output.parts_of_speech[2], 3);
                 if (!(rng.df_trandom(100)))
-                    selectWord(table2, output.words[3], output.parts_of_speech[3], 3);
+                    selectWord(table1, output.words[3], output.parts_of_speech[3], 3);
                 break;
             }
-            if (rng.df_trandom(100))
+        }
+        if (rng.df_trandom(100))
+        {
+            if (rng.df_trandom(2))
+                selectWord(table1, output.words[4], output.parts_of_speech[4], 4);
+            else
                 selectWord(table2, output.words[4], output.parts_of_speech[4], 4);
-            break;
-
-        case 7:
-            r = rng.df_trandom(3);
-            if (r == 0 || r == 1)
-            {
-                selectWord(table2, output.words[0], output.parts_of_speech[0], 0);
-                selectWord(table1, output.words[1], output.parts_of_speech[1], 1);
-            }
-            if (r == 1 || r == 2)
-            {
-                r2 = rng.df_trandom(2);
-                if (r == 2 || r2 == 1)
-                    selectWord(table1, output.words[5], output.parts_of_speech[5], 2);
-                else
-                    selectWord(table2, output.words[5], output.parts_of_speech[5], 2);
-                r3 = rng.df_trandom(3);
-                if (rng.df_trandom(50))
-                    r3 = rng.df_trandom(2);
-                switch (r3)
-                {
-                case 0:
-                case 2:
-                    selectWord(table1, output.words[6], output.parts_of_speech[6], 5);
-                    if (r3 == 0)
-                        break;
-                case 1:
-                    selectWord(table2, output.words[2], output.parts_of_speech[2], 3);
-                    if (!(rng.df_trandom(100)))
-                        selectWord(table2, output.words[3], output.parts_of_speech[3], 3);
-                    break;
-                }
-            }
-            if (rng.df_trandom(100))
-                selectWord(table2, output.words[4], output.parts_of_speech[4], 4);
-            break;
         }
         if (output.words[2] != -1 && output.words[3] != -1 &&
             world->raws.language.words[output.words[3]]->adj_dist < world->raws.language.words[output.words[2]]->adj_dist)
@@ -1233,10 +1138,10 @@ command_result df_strangemood (color_ostream &out, vector <string> & parameters)
 
     // Generate the artifact's name
     if (type == mood_type::Fell || type == mood_type::Macabre)
-        generateName(unit->status.artifact_name, unit->name.language, 1, world->raws.language.word_table[0][2], world->raws.language.word_table[1][2]);
+        generateName(unit->status.artifact_name, unit->name.language, world->raws.language.word_table[0][2], world->raws.language.word_table[1][2]);
     else
     {
-        generateName(unit->status.artifact_name, unit->name.language, 1, world->raws.language.word_table[0][1], world->raws.language.word_table[1][1]);
+        generateName(unit->status.artifact_name, unit->name.language, world->raws.language.word_table[0][1], world->raws.language.word_table[1][1]);
         if (!rng.df_trandom(100))
             unit->status.artifact_name = unit->name;
     }

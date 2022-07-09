@@ -749,9 +749,9 @@ static df::item *getAnyItem(df::viewscreen *top)
     if (VIRTUAL_CAST_VAR(screen, df::viewscreen_tradegoodsst, top))
     {
         if (screen->in_right_pane)
-            return vector_get(screen->broker_items, screen->broker_cursor);
+            return vector_get(screen->items[1], screen->cursor[1]);
         else
-            return vector_get(screen->trader_items, screen->trader_cursor);
+            return vector_get(screen->items[0], screen->cursor[0]);
     }
 
     if (VIRTUAL_CAST_VAR(screen, df::viewscreen_storesst, top))

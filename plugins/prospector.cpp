@@ -284,7 +284,7 @@ bool estimate_underground(color_ostream &out, EmbarkTileLayout &tile, df::world_
             if (tile.elevation == 99)
                 tile.elevation = 98;
 
-            if (tile.geo_biome && (tile.geo_biome->unk1 == 4 || tile.geo_biome->unk1 == 5))
+            if (tile.geo_biome && (tile.geo_biome->category == 4 || tile.geo_biome->category == 5))
             {
                 auto b_details = get_details(data, tile.biome_pos);
 

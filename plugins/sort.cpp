@@ -388,11 +388,11 @@ DEFINE_SORT_HANDLER(item_sorters, tradegoods, "/Items/Broker", trade)
 {
     PARSE_SPEC("items", parameters);
 
-    if (compute_order(*pout, L, top, &order, trade->broker_items))
+    if (compute_order(*pout, L, top, &order, trade->items[1]))
     {
-        reorder_cursor(&trade->broker_cursor, order);
-        reorder_vector(&trade->broker_items, order);
-        reorder_vector(&trade->broker_selected, order);
+        reorder_cursor(&trade->cursor[1], order);
+        reorder_vector(&trade->items[1], order);
+        reorder_vector(&trade->selected[1], order);
     }
 }
 
@@ -400,11 +400,11 @@ DEFINE_SORT_HANDLER(item_sorters, tradegoods, "/Items/Trader", trade)
 {
     PARSE_SPEC("items", parameters);
 
-    if (compute_order(*pout, L, top, &order, trade->trader_items))
+    if (compute_order(*pout, L, top, &order, trade->items[0]))
     {
-        reorder_cursor(&trade->trader_cursor, order);
-        reorder_vector(&trade->trader_items, order);
-        reorder_vector(&trade->trader_selected, order);
+        reorder_cursor(&trade->cursor[0], order);
+        reorder_vector(&trade->items[0], order);
+        reorder_vector(&trade->selected[0], order);
     }
 }
 
