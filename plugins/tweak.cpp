@@ -20,6 +20,8 @@
 #include "df/item_shoesst.h"
 #include "df/item_pantsst.h"
 #include "df/item_clothst.h"
+#include "df/building_drawbuffer.h"
+#include "df/building_bridgest.h"
 
 #include <stdlib.h>
 
@@ -40,6 +42,8 @@ DFhackCExport command_result plugin_init (color_ostream &out, std::vector <Plugi
         "    Fixes performance bug 6012 by squashing jitter in temperature updates.\n"
         "  tweak adamantine-cloth-wear [disable]\n"
         "    Stops adamantine clothing from wearing out while being worn (bug 6481).\n"
+        "  tweak drawbridge-tiles [disable]\n"
+        "    Draws raised bridges with distinct tiles.\n"
     ));
     return CR_OK;
 }
@@ -148,6 +152,59 @@ struct adamantine_cloth_wear_cloth_hook : df::item_clothst {
 };
 IMPLEMENT_VMETHOD_INTERPOSE(adamantine_cloth_wear_cloth_hook, incWearTimer);
 
+struct drawbridge_tiles_hook : df::building_bridgest {
+    typedef df::building_bridgest interpose_base;
+
+    DEFINE_VMETHOD_INTERPOSE(void, drawBuilding, (df::building_drawbuffer *buf, int16_t z_offset))
+    {
+        static const unsigned char tiles[4][3] =
+        {
+            { 0xB7, 0xB6, 0xBD },
+            { 0xD6, 0xC7, 0xD3 },
+            { 0xD4, 0xCF, 0xBE },
+            { 0xD5, 0xD1, 0xB8 },
+        };
+        INTERPOSE_NEXT(drawBuilding)(buf, z_offset);
+
+        // Only redraw "closed" drawbridges
+        if (!gate_flags.bits.closed || direction == -1)
+            return;
+
+        // Figure out the extents and the axis
+        int p1, p2;
+        bool iy = false;
+        switch (direction)
+        {
+        case 0: // Left
+        case 1: // Right
+            p1 = buf->y1; p2 = buf->y2; iy = true;
+            break;
+        case 2: // Up
+        case 3: // Down
+            p1 = buf->x1; p2 = buf->x2;
+            break;
+        }
+
+        int x = 0, y = 0;
+        if (p1 == p2)
+            buf->tile[0][0] = tiles[direction][1];
+        else for (int p = p1; p <= p2; p++)
+        {
+            if (p == p1)
+                buf->tile[x][y] = tiles[direction][0];
+            else if (p == p2)
+                buf->tile[x][y] = tiles[direction][2];
+            else
+                buf->tile[x][y] = tiles[direction][1];
+            if (iy)
+                y++;
+            else
+                x++;
+        }
+    }
+};
+IMPLEMENT_VMETHOD_INTERPOSE(drawbridge_tiles_hook, drawBuilding);
+
 static void enable_hook(color_ostream &out, VMethodInterposeLinkBase &hook, vector <string> &parameters)
 {
     if (vector_get(parameters, 1) == "disable")
@@ -185,6 +242,10 @@ static command_result tweak(color_ostream &out, vector <string> &parameters)
         enable_hook(out, INTERPOSE_HOOK(adamantine_cloth_wear_shoes_hook, incWearTimer), parameters);
         enable_hook(out, INTERPOSE_HOOK(adamantine_cloth_wear_pants_hook, incWearTimer), parameters);
         enable_hook(out, INTERPOSE_HOOK(adamantine_cloth_wear_cloth_hook, incWearTimer), parameters);
+    }
+    else if (cmd == "drawbridge-tiles")
+    {
+        enable_hook(out, INTERPOSE_HOOK(drawbridge_tiles_hook, drawBuilding), parameters);
     }
     else
         return CR_WRONG_USAGE;
