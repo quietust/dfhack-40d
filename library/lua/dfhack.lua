@@ -225,7 +225,7 @@ function dfhack.persistent:__tostring()
 end
 
 function dfhack.matinfo:__tostring()
-    return "<material "..self.type..":"..self.index.." "..self:getToken()..">"
+    return "<material "..self.type..":"..self.subtype.." "..self:getToken()..">"
 end
 
 dfhack.random.__index = dfhack.random
