@@ -72,7 +72,12 @@ const SkillLevel skill_levels[] = {
     {"Legendary+2", 2200, 'W'},
     {"Legendary+3", 2300, 'X'},
     {"Legendary+4", 2400, 'Y'},
-    {"Legendary+5",    0, 'Z'}
+    {"Legendary+5", 2500, 'Z'},
+    {"Legendary+6", 2600, 'Z'},
+    {"Legendary+7", 2700, 'Z'},
+    {"Legendary+8", 2800, 'Z'},
+    {"Legendary+9", 2900, 'Z'},
+    {"Legendary+X",    0, 'Z'}
 };
 
 const char *armor_names[4] =
