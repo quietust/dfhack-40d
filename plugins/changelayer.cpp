@@ -20,6 +20,7 @@
 #include "df/world_geo_biome.h"
 #include "df/world_geo_layer.h"
 #include "df/region_map_entry.h"
+#include "df/map_block.h"
 #include "df/matgloss_stone.h"
 
 using namespace DFHack;
@@ -162,8 +163,6 @@ command_result changelayer (color_ostream &out, std::vector <std::string> & para
         return CR_FAILURE;
     }
 
-    MapExtras::MapCache mc;
-
     int32_t regionX, regionY, regionZ;
     Maps::getPosition(regionX,regionY,regionZ);
 
@@ -181,18 +180,18 @@ command_result changelayer (color_ostream &out, std::vector <std::string> & para
     uint32_t blockY = cursorY / 16;
     uint32_t tileY = cursorY % 16;
 
-    MapExtras::Block * b = mc.BlockAt(cursor/16);
-    if(!b || !b->is_valid())
+    df::map_block *b = Maps::getTileBlock(cursor);
+    if(!b)
     {
         out.printerr("No data.\n");
         return CR_OK;
     }
 
-    df::tile_designation des = b->DesignationAt(cursor%16);
+    auto des = Maps::getTileDesignation(cursor);
 
     // get biome and geolayer at cursor position
-    uint32_t biome = des.bits.biome;
-    uint32_t layer = des.bits.geolayer_index;
+    uint32_t biome = des->bits.biome;
+    uint32_t layer = des->bits.geolayer_index;
     if(verbose)
     {
         out << "biome: " << biome << endl
@@ -221,7 +220,7 @@ command_result changelayer (color_ostream &out, std::vector <std::string> & para
     {
         if(verbose) 
             out << "---Biome: " << i;
-        if(!all_biomes && i!=biome)
+        if(!all_biomes && i!=b->region_offset[biome])
         {
             if(verbose) 
                 out << "-skipping" << endl;
@@ -237,10 +236,10 @@ command_result changelayer (color_ostream &out, std::vector <std::string> & para
         // regionX is in embark squares
         // regionX/16 is in 16x16 embark square regions
         // i provides -1 .. +1 offset from the current region
-        int bioRX = world->map.region_x / 16 + ((i % 3) - 1);
+        int bioRX = (cursorX / 48 + regionX) / 16 + ((i % 3) - 1);
         if (bioRX < 0) bioRX = 0;
         if (bioRX >= world_data->world_width) bioRX = world_data->world_width - 1;
-        int bioRY = world->map.region_y / 16 + ((i / 3) - 1);
+        int bioRY = (cursorY / 48 + regionY) / 16 + ((i / 3) - 1);
         if (bioRY < 0) bioRY = 0;
         if (bioRY >= world_data->world_height) bioRY = world_data->world_height - 1;
 

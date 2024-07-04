@@ -84,9 +84,12 @@ static bool inc_wear_timer (df::item_constructed *item, int amount)
     if (item->flags.bits.artifact)
         return false;
 
-    MaterialInfo mat(item->material, item->matgloss);
-    if (mat.isMetal() && mat.metal->flags.is_set(matgloss_metal_flags::DEEP))
-        return false;
+    if (item->material == material_type::METAL)
+    {
+        auto metal = df::matgloss_metal::find(item->matgloss);
+        if (metal && metal->flags.is_set(matgloss_metal_flags::DEEP))
+            return false;
+    }
 
     item->wear_timer += amount;
     return (item->wear_timer > 806400);

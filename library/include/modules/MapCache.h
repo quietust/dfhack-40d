@@ -286,7 +286,7 @@ public:
 
     t_blockflags BlockFlags()
     {
-        return block ? (t_blockflags)block->flags.bits[0] : t_blockflags();
+        return block ? t_blockflags(block->flags.bits[0]) : t_blockflags();
     }
 
     bool Write();

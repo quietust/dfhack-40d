@@ -107,7 +107,17 @@ enum BiomeOffset
  * map block flags wrapper
  * \ingroup grp_maps
  */
-typedef df::block_flags t_blockflags;
+union t_blockflags {
+    uint8_t whole;
+    struct
+    {
+        uint8_t designated : 1;
+        uint8_t update_temperature : 1;
+        uint8_t update_liquid : 1;
+        uint8_t update_liquid_twice : 1;
+    } bits;
+    t_blockflags(uint8_t f = 0) : whole(f) {}
+};
 
 /**
  * 16x16 array of tile types
